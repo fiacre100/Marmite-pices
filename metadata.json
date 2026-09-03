@@ -1,0 +1,6 @@
+{
+  "name": "Marmite & Épices",
+  "description": "L'application de découverte culinaire par excellence : trouvez l'inspiration chaque jour, explorez les trésors de la cuisine béninoise, africaine et du monde, et réussissez facilement chaque plat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
