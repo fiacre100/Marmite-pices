@@ -109,6 +109,7 @@ export interface UserPreferences {
   cookingTimePreference: string;
   soundAlerts: boolean;
   keepScreenOn: boolean;
+  theme?: 'light' | 'dark';
 }
 
 export interface UserProfile {

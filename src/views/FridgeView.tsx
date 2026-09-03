@@ -3,19 +3,55 @@ import { Sparkles, Plus, X, Check, ShoppingBag, BookOpen, ChefHat, Clock } from 
 import { Recipe } from '../types';
 import { PANTRY_COMMON_INGREDIENTS } from '../data/recipes';
 
+import { UserProfile, CookingConditions } from '../types';
+
 interface FridgeViewProps {
   recipes: Recipe[];
   favorites: string[];
   onToggleFavorite: (id: string) => void;
   onSelectRecipe: (recipe: Recipe) => void;
+  user: UserProfile;
+  cookingConditions: CookingConditions;
 }
 
 export function FridgeView({
   recipes,
   favorites,
   onToggleFavorite,
-  onSelectRecipe
+  onSelectRecipe,
+  user,
+  cookingConditions
 }: FridgeViewProps) {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiRecipe, setAiRecipe] = useState<Recipe | null>(null);
+
+  const generateRecipe = async () => {
+    if (selectedIngredients.length === 0) return;
+    setIsGenerating(true);
+    setAiRecipe(null);
+    try {
+      const res = await fetch('/api/generate-recipe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ingredients: selectedIngredients,
+          preferences: user.preferences,
+          cookingConditions
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAiRecipe(data);
+      } else {
+        alert("Erreur de l'IA: " + (data.error || 'Inconnue'));
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Impossible de joindre le serveur.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   // Default selected ingredients matching screenshot: Poulet, Tomate, Oignon, Riz
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([
     'Poulet',
@@ -186,6 +222,43 @@ export function FridgeView({
             <span>Voir ce que je peux cuisiner ({totalPossible} recettes)</span>
           </a>
         </div>
+      </section>
+
+      {/* AI Generation Section */}
+      <section className="py-4">
+        <button
+          onClick={generateRecipe}
+          disabled={isGenerating || selectedIngredients.length === 0}
+          className="w-full flex items-center justify-center gap-2 h-12 rounded-2xl bg-gradient-to-r from-[#D35400] to-[#C85A32] text-white font-bold text-sm shadow-md shadow-[#D35400]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isGenerating ? (
+            <span className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 animate-spin" />
+              Création en cours...
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              Surprenez-moi (Gemini AI)
+            </span>
+          )}
+        </button>
+
+        {aiRecipe && (
+          <div className="mt-4 p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-editorial text-lg font-bold text-emerald-900">✨ Recette de l'IA</h3>
+              <button 
+                onClick={() => onSelectRecipe(aiRecipe)}
+                className="px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700"
+              >
+                Cuisiner ça
+              </button>
+            </div>
+            <p className="text-sm text-emerald-800 font-medium mb-1">{aiRecipe.title}</p>
+            <p className="text-xs text-emerald-700">{aiRecipe.description}</p>
+          </div>
+        )}
       </section>
 
       {/* Results Section */}

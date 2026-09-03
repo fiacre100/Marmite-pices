@@ -36,107 +36,121 @@ export function App() {
   const [isGlobalAuthOpen, setIsGlobalAuthOpen] = useState(false);
   const [globalAuthMode, setGlobalAuthMode] = useState<AuthMode>('signup');
 
-  // Cooking conditions persisted in localStorage
-  const [cookingConditions, setCookingConditions] = useState<CookingConditions>(() => {
-    try {
-      const stored = localStorage.getItem('marmite_cooking_conditions');
-      return stored ? JSON.parse(stored) : DEFAULT_COOKING_CONDITIONS;
-    } catch {
-      return DEFAULT_COOKING_CONDITIONS;
+  // Session, recipes and conditions state
+  const [session, setSession] = useState<any>(null);
+  const [recipes, setRecipes] = useState<Recipe[]>(RECIPES);
+  const [cookingConditions, setCookingConditions] = useState<CookingConditions>(DEFAULT_COOKING_CONDITIONS);
+
+  // Favorites state persisted in localStorage or Supabase
+  const [favorites, setFavorites] = useState<string[]>(DEFAULT_FAVORITE_IDS);
+
+  // Cooking history
+  const [cookingHistory, setCookingHistory] = useState<string[]>(['poulet-yassa', 'ndole-crevettes']);
+
+  // User profile state
+  const [user, setUser] = useState<UserProfile>({
+    name: 'Aïssatou Diallo',
+    title: 'Membre Explorateur Culinaire',
+    speciality: 'Cuisines du Bénin & d\'Afrique de l\'Ouest',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+    cookedCount: 28,
+    favoriteSpicesCount: 14,
+    isPremium: false,
+    preferences: {
+      spiciness: 'moyen',
+      diet: ['Halal'],
+      cookingTimePreference: '30-45min',
+      soundAlerts: true,
+      keepScreenOn: true
     }
   });
 
-  // Favorites state persisted in localStorage
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem('marmite_favorites');
-      return stored ? JSON.parse(stored) : DEFAULT_FAVORITE_IDS;
-    } catch {
-      return DEFAULT_FAVORITE_IDS;
-    }
-  });
 
-  // Cooking history persisted in localStorage
-  const [cookingHistory, setCookingHistory] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem('marmite_history');
-      return stored ? JSON.parse(stored) : ['poulet-yassa', 'ndole-crevettes'];
-    } catch {
-      return ['poulet-yassa', 'ndole-crevettes'];
-    }
-  });
 
-  // User profile persisted in localStorage
-  const [user, setUser] = useState<UserProfile>(() => {
+  // Load local fallback data
+  const loadLocalFallback = () => {
+    setSession(null);
     try {
-      const stored = localStorage.getItem('marmite_user');
-      if (stored) return JSON.parse(stored);
-    } catch {
-      // Ignored
-    }
-    return {
-      name: 'Aïssatou Diallo',
-      title: 'Membre Explorateur Culinaire',
-      speciality: 'Cuisines du Bénin & d\'Afrique de l\'Ouest',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-      cookedCount: 28,
-      favoriteSpicesCount: 14,
-      isPremium: false,
-      preferences: {
-        spiciness: 'moyen',
-        diet: ['Halal'],
-        cookingTimePreference: '30-45min',
-        soundAlerts: true,
-        keepScreenOn: true
+      const storedFavorites = localStorage.getItem('marmite_favorites');
+      if (storedFavorites) setFavorites(JSON.parse(storedFavorites));
+      else setFavorites(DEFAULT_FAVORITE_IDS);
+    } catch {}
+    
+    try {
+      const storedUser = localStorage.getItem('marmite_user');
+      if (storedUser) setUser(JSON.parse(storedUser));
+    } catch {}
+  };
+
+  const fetchUserData = async (userId: string) => {
+    try {
+      // Fetch profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+        
+      if (profile) {
+        setUser((prev) => ({
+          ...prev,
+          name: profile.name || prev.name,
+          avatar: profile.avatar || prev.avatar,
+          isPremium: profile.is_premium || false,
+          cookedCount: profile.cooked_count || 0,
+          preferences: profile.preferences || prev.preferences
+        }));
+        if (profile.cooking_conditions) setCookingConditions(profile.cooking_conditions);
+        if (profile.cooking_history) setCookingHistory(profile.cooking_history);
       }
-    };
-  });
 
-  // Save favorites to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('marmite_favorites', JSON.stringify(favorites));
-    } catch {
-      // Ignored
+      // Fetch favorites
+      const { data: userFavorites } = await supabase
+        .from('user_favorites')
+        .select('recipe_id')
+        .eq('user_id', userId);
+
+      if (userFavorites) {
+        setFavorites(userFavorites.map(f => f.recipe_id));
+      }
+    } catch (e) {
+      console.error('Error fetching user data', e);
     }
-  }, [favorites]);
+  };
 
-  // Save history to localStorage
-  useEffect(() => {
+  // Fetch recipes
+  const fetchRecipes = async () => {
     try {
-      localStorage.setItem('marmite_history', JSON.stringify(cookingHistory));
-    } catch {
-      // Ignored
+      const { data } = await supabase.from('recipes').select('*').order('created_at', { ascending: false });
+      if (data && data.length > 0) {
+        // Map data to match Recipe type if needed, assuming it matches here
+        setRecipes(data as Recipe[]);
+      } else {
+        // Fallback to local if empty
+        setRecipes(RECIPES);
+      }
+    } catch (e) {
+      console.error('Error fetching recipes', e);
     }
-  }, [cookingHistory]);
+  };
 
-  // Save cooking conditions to localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem('marmite_cooking_conditions', JSON.stringify(cookingConditions));
-    } catch {
-      // Ignored
-    }
-  }, [cookingConditions]);
+    fetchRecipes();
+  }, []);
 
-  // Save user profile to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('marmite_user', JSON.stringify(user));
-    } catch {
-      // Ignored
-    }
-  }, [user]);
-
-  // Sync Supabase Auth session
+  // Sync Supabase Auth session and data
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
+        setSession(session);
+        setSession(session);
         setUser((prev) => ({
           ...prev,
-          name: session.user.user_metadata?.name || prev.name,
           email: session.user.email || prev.email
         }));
+        fetchUserData(session.user.id);
+      } else {
+        loadLocalFallback();
       }
     });
 
@@ -146,20 +160,43 @@ export function App() {
       if (session?.user) {
         setUser((prev) => ({
           ...prev,
-          name: session.user.user_metadata?.name || prev.name,
           email: session.user.email || prev.email
         }));
+        fetchUserData(session.user.id);
+      } else {
+        loadLocalFallback();
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
+
+
   // Toggle favorite
-  const handleToggleFavorite = (recipeId: string) => {
-    setFavorites((prev) =>
-      prev.includes(recipeId) ? prev.filter((id) => id !== recipeId) : [...prev, recipeId]
-    );
+  const handleToggleFavorite = async (recipeId: string) => {
+    const isCurrentlyFavorite = favorites.includes(recipeId);
+    
+    // Update local state optimistically
+    const newFavorites = isCurrentlyFavorite ? favorites.filter((id) => id !== recipeId) : [...favorites, recipeId];
+    setFavorites(newFavorites);
+
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.user) {
+      if (isCurrentlyFavorite) {
+        await supabase
+          .from('user_favorites')
+          .delete()
+          .match({ user_id: session.user.id, recipe_id: recipeId });
+      } else {
+        await supabase
+          .from('user_favorites')
+          .insert({ user_id: session.user.id, recipe_id: recipeId });
+      }
+    } else {
+      localStorage.setItem('marmite_favorites', JSON.stringify(newFavorites));
+    }
   };
 
   // Open recipe detail
@@ -177,16 +214,29 @@ export function App() {
   };
 
   // Finish recipe from cooking mode
-  const handleFinishRecipe = (recipe: Recipe) => {
+  const handleFinishRecipe = async (recipe: Recipe) => {
     setIsCookingMode(false);
     setSelectedRecipe(null);
+    let updatedHistory = cookingHistory;
     if (!cookingHistory.includes(recipe.id)) {
-      setCookingHistory((prev) => [recipe.id, ...prev]);
+      updatedHistory = [recipe.id, ...cookingHistory];
+      setCookingHistory(updatedHistory);
     }
+    const newCookedCount = user.cookedCount + 1;
     setUser((prev) => ({
       ...prev,
-      cookedCount: prev.cookedCount + 1
+      cookedCount: newCookedCount
     }));
+
+    if (session?.user) {
+      await supabase
+        .from('profiles')
+        .update({ 
+          cooked_count: newCookedCount,
+          cooking_history: updatedHistory
+        })
+        .eq('id', session.user.id);
+    }
   };
 
   // Open search with optional seed query
@@ -207,12 +257,35 @@ export function App() {
   };
 
   // Update user profile partial
-  const handleUpdateUser = (updated: Partial<UserProfile>) => {
+  const handleUpdateUser = async (updated: Partial<UserProfile>) => {
     setUser((prev) => ({ ...prev, ...updated }));
+    
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const updates: any = {};
+      if (updated.name !== undefined) updates.name = updated.name;
+      if (updated.avatar !== undefined) updates.avatar = updated.avatar;
+      if (updated.preferences !== undefined) updates.preferences = updated.preferences;
+      
+      if (Object.keys(updates).length > 0) {
+        await supabase
+          .from('profiles')
+          .update(updates)
+          .eq('id', session.user.id);
+      }
+    }
   };
 
-  const handleActivatePremium = () => {
+  const handleActivatePremium = async () => {
     setUser((prev) => ({ ...prev, isPremium: true }));
+    
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await supabase
+        .from('profiles')
+        .update({ is_premium: true })
+        .eq('id', session.user.id);
+    }
   };
 
   // Handle Auth Success from Landing Page or in-app
@@ -231,6 +304,12 @@ export function App() {
     targetTab: TabDestination = 'home',
     initialRecipe?: Recipe
   ) => {
+    if (!session) {
+      setGlobalAuthMode('login');
+      setIsGlobalAuthOpen(true);
+      return;
+    }
+
     setViewMode('app');
     if (initialRecipe) {
       setSelectedRecipe(initialRecipe);
@@ -248,14 +327,23 @@ export function App() {
     return (
       <LandingPageView
         onLaunchApp={handleLaunchApp}
-        recipes={RECIPES}
+        recipes={recipes}
         onAuthSuccess={handleAuthSuccess}
       />
     );
   }
 
+  // Apply theme to document
+  useEffect(() => {
+    if (user.preferences?.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [user.preferences?.theme]);
+
   return (
-    <div id="marmite-app" className="min-h-screen bg-[#FDFBF7] text-[#1C1A18] font-sans antialiased">
+    <div id="marmite-app" className="min-h-screen bg-[#FDFBF7] dark:bg-[#1C1A18] text-[#1C1A18] dark:text-[#FDFBF7] font-sans antialiased">
       {/* Fullscreen Cooking Mode replaces normal layout */}
       {isCookingMode && selectedRecipe ? (
         <CookingModeView
@@ -294,7 +382,7 @@ export function App() {
               />
             ) : isSearching ? (
               <SearchView
-                recipes={RECIPES}
+                recipes={recipes}
                 favorites={favorites}
                 onToggleFavorite={handleToggleFavorite}
                 onSelectRecipe={handleSelectRecipe}
@@ -322,10 +410,12 @@ export function App() {
               />
             ) : activeTab === 'fridge' ? (
               <FridgeView
-                recipes={RECIPES}
+                recipes={recipes}
                 favorites={favorites}
                 onToggleFavorite={handleToggleFavorite}
                 onSelectRecipe={handleSelectRecipe}
+                user={user}
+                cookingConditions={cookingConditions}
               />
             ) : activeTab === 'favorites' ? (
               <FavoritesView
@@ -343,8 +433,10 @@ export function App() {
                 recipes={RECIPES}
                 onSelectRecipe={handleSelectRecipe}
                 cookingHistory={cookingHistory}
-                onLogout={() => {
+                onLogout={async () => {
+                  await supabase.auth.signOut();
                   setViewMode('landing');
+                  setSession(null);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 onOpenAuth={(mode) => {

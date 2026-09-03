@@ -16,6 +16,8 @@ import {
   X
 } from 'lucide-react';
 import { UserProfile, Recipe } from '../types';
+import { supabase } from '../lib/supabase';
+import { Camera, Loader2 } from 'lucide-react';
 
 interface ProfileViewProps {
   user: UserProfile;
@@ -39,6 +41,49 @@ export function ProfileView({
   onOpenAuth
 }: ProfileViewProps) {
   const [activeModal, setActiveModal] = useState<'preferences' | 'history' | 'settings' | 'logout' | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (!e.target.files || e.target.files.length === 0) return;
+      
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      setIsUploading(true);
+
+      // Verify the session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        alert("Vous devez être connecté pour changer d'avatar.");
+        setIsUploading(false);
+        return;
+      }
+
+      // Upload the image to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+
+      // Update local and global state
+      onUpdateUser({ avatar: data.publicUrl });
+      
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      alert(`Erreur lors du téléchargement de l'avatar: ${error.message}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // History recipes
   const historyRecipes = recipes.filter((r) => cookingHistory.includes(r.id));
@@ -48,14 +93,35 @@ export function ProfileView({
       {/* Profile Card */}
       <section className="p-5 rounded-3xl bg-white border border-[#EBE5DC] shadow-[0_4px_20px_rgba(40,20,10,0.03)] space-y-4">
         <div className="flex items-center gap-4">
-          <div className="relative">
+          <label className="relative cursor-pointer group">
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="hidden" 
+              onChange={handleAvatarUpload} 
+              disabled={isUploading}
+            />
             <img
               src={user.avatar}
               alt={user.name}
-              className="w-16 h-16 rounded-full object-cover border-2 border-[#EBE5DC] shadow-sm"
+              className={`w-16 h-16 rounded-full object-cover border-2 border-[#EBE5DC] shadow-sm transition-opacity ${isUploading ? 'opacity-50' : 'group-hover:opacity-80'}`}
             />
             <span className="absolute bottom-0 right-0 w-4 h-4 bg-[#6B7F5E] rounded-full ring-2 ring-white" />
-          </div>
+            
+            {/* Overlay for uploading or hover */}
+            <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
+              {isUploading ? (
+                <Loader2 className="w-5 h-5 text-white animate-spin" />
+              ) : (
+                <Camera className="w-5 h-5 text-white" />
+              )}
+            </div>
+            {isUploading && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-full">
+                <Loader2 className="w-5 h-5 text-[#C85A32] animate-spin" />
+              </div>
+            )}
+          </label>
 
           <div className="space-y-0.5">
             <h1 className="font-editorial text-xl font-bold text-[#1C1A18]">
@@ -451,6 +517,34 @@ export function ProfileView({
                     });
                   }}
                   className="w-5 h-5 accent-[#6B7F5E] rounded cursor-pointer"
+                />
+              </div>
+
+              {/* Dark Mode */}
+              <div className="p-3.5 rounded-2xl bg-[#FAF6F0] flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Moon className="w-5 h-5 text-indigo-500" />
+                  <div>
+                    <h4 className="text-xs font-bold text-[#1C1A18]">
+                      Mode sombre
+                    </h4>
+                    <p className="text-[11px] text-[#736D66]">
+                      Repose les yeux pendant la nuit
+                    </p>
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={user.preferences.theme === 'dark'}
+                  onChange={(e) => {
+                    onUpdateUser({
+                      preferences: {
+                        ...user.preferences,
+                        theme: e.target.checked ? 'dark' : 'light'
+                      }
+                    });
+                  }}
+                  className="w-5 h-5 accent-indigo-500 rounded cursor-pointer"
                 />
               </div>
             </div>
