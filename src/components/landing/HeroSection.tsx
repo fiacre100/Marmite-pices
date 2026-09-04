@@ -193,7 +193,7 @@ export function HeroSection({
   return (
     <section
       id="hero-decouverte"
-      className="relative pt-6 pb-16 sm:pt-12 sm:pb-24 overflow-hidden"
+      className="relative pt-4 pb-10 sm:pt-12 sm:pb-24 overflow-hidden px-4 sm:px-6 lg:px-8"
     >
       {/* Sophisticated Ambient Glow Layers (Hearth Embers & Saffron Light) */}
       <div className="absolute top-[-10%] right-[-5%] w-[580px] h-[580px] bg-gradient-to-br from-[#D35400]/12 via-[#D99B26]/8 to-transparent rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow" />
@@ -240,7 +240,7 @@ export function HeroSection({
 
             {/* 2. Headline with Elegant Staggered Mask Reveal Effect */}
             <div className="space-y-1">
-              <h1 className="font-editorial text-4xl sm:text-5xl lg:text-[58px] font-bold text-[#1A1A1A] tracking-tight leading-[1.08]">
+              <h1 className="font-editorial text-[27px] sm:text-4xl lg:text-[56px] font-bold text-[#1A1A1A] tracking-tight leading-[1.15] sm:leading-[1.08]">
                 {/* Line 1 Mask Reveal */}
                 <span className="block overflow-hidden pb-1">
                   <motion.span
@@ -272,21 +272,21 @@ export function HeroSection({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.75, delay: 0.35, ease: luxuryEase }}
-              className="text-base sm:text-lg text-[#4A4A4A] font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0"
+              className="text-sm sm:text-base text-[#4A4A4A] font-normal leading-relaxed max-w-xl mx-auto lg:mx-0"
             >
-              Ne demandez plus jamais : <em className="text-[#1A1A1A] font-semibold not-italic bg-[#F8EFEB] px-1.5 py-0.5 rounded-md">« Qu'est-ce qu'on mange ce soir ? »</em> Sortez enfin de la routine ! Explorez les trésors méconnus de la cuisine béninoise, les pépites d’Afrique et les merveilles du monde, adaptés à votre foyer et garantis sans raté.
+              Ne demandez plus jamais : <em className="text-[#1A1A1A] font-semibold not-italic bg-[#F8EFEB] px-1.5 py-0.5 rounded-md">« Qu'est-ce qu'on mange ce soir ? »</em> Sortez enfin de la routine et explorez les merveilles culinaires du Bénin, d'Afrique et du monde.
             </motion.p>
 
-            {/* 4. Interactive Curiosity Provoker Ticker */}
+            {/* 4. Interactive Curiosity Provoker Ticker - Uniquement sur écran large */}
             <motion.div
               initial={{ opacity: 0, scale: 0.97, y: 14 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.75, delay: 0.45, ease: luxuryEase }}
-              className="relative p-3.5 sm:p-4 rounded-2xl bg-white/95 border border-[#EBE5DC] shadow-2xs hover:shadow-xs transition-all text-left"
+              className="hidden md:block relative p-3.5 sm:p-4 rounded-2xl bg-white/95 border border-[#EBE5DC] shadow-2xs hover:shadow-xs transition-all text-left"
             >
-              <div className="flex items-start sm:items-center justify-between gap-3">
-                <div className="flex items-start sm:items-center gap-2.5 flex-1 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-[#FAF4E8] text-[#D35400] flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-[#FAF4E8] text-[#D35400] flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -294,12 +294,11 @@ export function HeroSection({
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[#D35400]">
                         Piquer la Curiosité
                       </span>
-                      <span className="text-[10px] text-stone-400 font-medium hidden sm:inline">
-                        Question du jour #{curiosityIndex + 1}
+                      <span className="text-[10px] text-stone-400 font-medium">
+                        Question #{curiosityIndex + 1}
                       </span>
                     </div>
 
-                    {/* Animated Question Transition */}
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={curiosityIndex}
@@ -307,7 +306,7 @@ export function HeroSection({
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 10 }}
                         transition={{ duration: 0.35, ease: 'easeOut' }}
-                        className="text-xs sm:text-sm font-medium text-[#1A1A1A] mt-0.5 truncate sm:whitespace-normal"
+                        className="text-xs sm:text-sm font-medium text-[#1A1A1A] mt-0.5 truncate"
                       >
                         {CURIOSITY_QUESTIONS[curiosityIndex].question}
                       </motion.div>
@@ -315,7 +314,6 @@ export function HeroSection({
                   </div>
                 </div>
 
-                {/* Question interactive action buttons */}
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                   <button
                     type="button"
@@ -328,7 +326,7 @@ export function HeroSection({
                   <button
                     type="button"
                     onClick={nextCuriosity}
-                    title="Autre question pour piquer ma curiosité"
+                    title="Autre question"
                     className="w-8 h-8 rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#EBE5DC] text-stone-500 hover:text-[#1A1A1A] flex items-center justify-center transition-all cursor-pointer"
                   >
                     <RefreshCw className="w-3.5 h-3.5 hover:rotate-90 transition-transform" />
@@ -337,88 +335,67 @@ export function HeroSection({
               </div>
             </motion.div>
 
-            {/* 5. Terroir Value Badges */}
+            {/* 5. Terroir Value Badges - Uniquement sur écran large */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.55, ease: luxuryEase }}
-              className="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-1"
+              className="hidden sm:flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-1"
             >
-              <span className="px-3 py-1 rounded-full bg-white border border-[#EBE5DC] text-xs font-semibold text-[#1A1A1A] flex items-center gap-1.5 shadow-2xs hover:border-[#D35400] transition-colors cursor-default">
+              <span className="px-3 py-1 rounded-full bg-white border border-[#EBE5DC] text-xs font-semibold text-[#1A1A1A] flex items-center gap-1.5 shadow-2xs">
                 <span>🇧🇯</span> Terroirs du Bénin
               </span>
-              <span className="px-3 py-1 rounded-full bg-white border border-[#EBE5DC] text-xs font-semibold text-[#1A1A1A] flex items-center gap-1.5 shadow-2xs hover:border-[#D35400] transition-colors cursor-default">
+              <span className="px-3 py-1 rounded-full bg-white border border-[#EBE5DC] text-xs font-semibold text-[#1A1A1A] flex items-center gap-1.5 shadow-2xs">
                 <span>🌍</span> Pépites d'Afrique
               </span>
-              <span className="px-3 py-1 rounded-full bg-white border border-[#EBE5DC] text-xs font-semibold text-[#1A1A1A] flex items-center gap-1.5 shadow-2xs hover:border-[#D35400] transition-colors cursor-default">
-                <span>✈️</span> Saveurs du Monde
-              </span>
               <span className="px-3 py-1 rounded-full bg-[#EBF0E6] text-[#6B7F5E] text-xs font-bold flex items-center gap-1.5 shadow-2xs">
-                <Check className="w-3 h-3 stroke-[3]" /> Réussite au 1er essai
+                <Check className="w-3 h-3 stroke-[3]" /> Réussite garantie
               </span>
             </motion.div>
 
-            {/* 6. CTAs & Discovery Trigger */}
+            {/* 6. LE BOUTON ESSENTIEL */}
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.65, ease: luxuryEase }}
-              className="space-y-4 pt-2"
+              className="space-y-3 pt-2"
             >
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5">
-                {/* Primary Exploration Button */}
-                <a
-                  href="#decouvertes-terroirs"
-                  className="group relative w-full sm:w-auto h-14 px-8 rounded-full bg-[#D35400] hover:bg-[#B84700] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-3 shadow-lg shadow-[#D35400]/30 transition-all hover:scale-105 active:scale-95 cursor-pointer overflow-hidden"
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+                {/* UN SEUL BOUTON ESSENTIEL */}
+                <button
+                  id="hero-essential-cta-btn"
+                  type="button"
+                  onClick={() => onLaunchApp('home')}
+                  className="group relative w-full sm:w-auto h-12 sm:h-14 px-7 sm:px-9 rounded-full bg-[#D35400] hover:bg-[#B84700] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-3 shadow-lg shadow-[#D35400]/30 transition-all hover:scale-105 active:scale-95 cursor-pointer overflow-hidden"
                 >
                   <Compass className="w-5 h-5 fill-current group-hover:rotate-45 transition-transform duration-500" />
-                  <span>Explorer les Découvertes</span>
+                  <span>Commencer à explorer</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  
+
                   {/* Subtle luxury shine effect */}
                   <span className="absolute top-0 left-[-100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 group-hover:left-[200%] transition-all duration-1000 ease-out" />
-                </a>
+                </button>
 
-                {/* Roulette Surprise Button */}
+                {/* Option roulette sur grand écran uniquement */}
                 <button
                   type="button"
                   onClick={openSurpriseModal}
-                  className="group w-full sm:w-auto h-14 px-6 rounded-full bg-[#FAF4E8] border border-[#D99B26]/40 hover:border-[#D35400] text-[#B87A14] hover:text-[#D35400] font-bold text-sm flex items-center justify-center gap-2.5 transition-all shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
+                  className="hidden sm:flex h-14 px-6 rounded-full bg-[#FAF4E8] border border-[#D99B26]/40 hover:border-[#D35400] text-[#B87A14] hover:text-[#D35400] font-bold text-sm items-center justify-center gap-2.5 transition-all shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
                 >
-                  <Dices className="w-4 h-4 text-[#D35400] group-hover:rotate-180 transition-transform duration-500" />
-                  <span>Surprenez-moi (Plat Aléatoire)</span>
-                </button>
-
-                {/* Quick Direct Preview */}
-                <button
-                  type="button"
-                  onClick={() => onLaunchApp('home')}
-                  className="w-full sm:w-auto h-14 px-6 rounded-full bg-white border border-[#EBE5DC] hover:border-[#1A1A1A] text-[#1A1A1A] font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#FAF6F0] transition-colors cursor-pointer"
-                >
-                  <Play className="w-4 h-4 fill-current text-[#8FA382]" />
-                  <span>Lancer sans compte</span>
+                  <Dices className="w-4 h-4 text-[#D35400]" />
+                  <span>Surprenez-moi !</span>
                 </button>
               </div>
 
-              {/* Auth Quick Navigation */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 text-xs text-[#736D66] pt-1">
-                <span>Vous avez déjà un compte ?</span>
+              {/* Lien discret de connexion */}
+              <div className="flex items-center justify-center lg:justify-start gap-2 text-xs text-[#736D66] pt-1">
+                <span>Déjà un compte ?</span>
                 <button
                   type="button"
                   onClick={() => handleOpenAuth('login')}
-                  className="font-bold text-[#D35400] hover:text-[#B84700] hover:underline cursor-pointer inline-flex items-center gap-1"
+                  className="font-bold text-[#D35400] hover:text-[#B84700] hover:underline cursor-pointer"
                 >
-                  <span>Se connecter</span>
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-                <span className="text-stone-300">•</span>
-                <span>Nouveau cuisinier ?</span>
-                <button
-                  type="button"
-                  onClick={() => handleOpenAuth('signup')}
-                  className="font-bold text-[#1A1A1A] hover:text-[#D35400] hover:underline cursor-pointer"
-                >
-                  Créer un compte gratuit
+                  Se connecter
                 </button>
               </div>
 
@@ -535,7 +512,7 @@ export function HeroSection({
                 initial={{ opacity: 0, scale: 0.94, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.85, delay: 0.25, ease: luxuryEase }}
-                className="w-[320px] sm:w-[350px] aspect-[9/18] bg-[#1A1A1A] rounded-[48px] p-3.5 shadow-[0_24px_50px_rgba(26,26,26,0.18)] border-4 border-[#2C2825] ring-1 ring-white/20 transition-all duration-500 hover:shadow-[0_32px_65px_rgba(211,84,0,0.22)]"
+                className="w-[290px] sm:w-[350px] max-w-[calc(100vw-32px)] aspect-[9/18] bg-[#1A1A1A] rounded-[40px] sm:rounded-[48px] p-3 sm:p-3.5 shadow-[0_24px_50px_rgba(26,26,26,0.18)] border-4 border-[#2C2825] ring-1 ring-white/20 transition-all duration-500 hover:shadow-[0_32px_65px_rgba(211,84,0,0.22)]"
               >
                 {/* Speaker notch */}
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-4 bg-black rounded-full z-30" />

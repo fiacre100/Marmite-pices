@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   User,
   Sliders,
@@ -13,11 +13,12 @@ import {
   Moon,
   Smartphone,
   Sparkles,
-  X
+  X,
+  Camera,
+  Loader2
 } from 'lucide-react';
 import { UserProfile, Recipe } from '../types';
 import { supabase } from '../lib/supabase';
-import { Camera, Loader2 } from 'lucide-react';
 
 interface ProfileViewProps {
   user: UserProfile;

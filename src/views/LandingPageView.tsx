@@ -227,21 +227,21 @@ export function LandingPageView({ onLaunchApp, recipes, onAuthSuccess }: Landing
       className="min-h-screen bg-[#FDFBF7] text-[#1A1A1A] selection:bg-[#F8EFEB] selection:text-[#D35400] relative overflow-x-hidden font-sans"
     >
       {/* 1. STICKY HEADER & COMPACT NAVIGATION */}
-      <header className="sticky top-0 z-50 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EBE5DC]/80 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-[#FDFBF7]/95 backdrop-blur-md border-b border-[#EBE5DC]/80 transition-all">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
           {/* Brand Logo */}
           <div
             onClick={() => onLaunchApp('home')}
-            className="flex items-center gap-3 cursor-pointer group"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer group shrink-0"
           >
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#D35400] to-[#B84700] text-white flex items-center justify-center shadow-md shadow-[#D35400]/25 group-hover:scale-105 transition-transform">
-              <Flame className="w-5 h-5 fill-white/20 stroke-[2.2px]" />
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#D35400] to-[#B84700] text-white flex items-center justify-center shadow-md shadow-[#D35400]/25 group-hover:scale-105 transition-transform shrink-0">
+              <Flame className="w-4 h-4 sm:w-5 sm:h-5 fill-white/20 stroke-[2.2px]" />
             </div>
             <div>
-              <span className="font-editorial text-2xl font-bold tracking-tight text-[#1A1A1A] leading-none block">
+              <span className="font-editorial text-[18px] sm:text-2xl font-bold tracking-tight text-[#1A1A1A] leading-none block whitespace-nowrap">
                 Marmite & Épices
               </span>
-              <span className="text-[10px] font-semibold text-[#8FA382] uppercase tracking-wider block mt-0.5">
+              <span className="text-[10px] font-semibold text-[#8FA382] uppercase tracking-wider hidden sm:block mt-0.5">
                 L'Explorateur Culinaire Bénin, Afrique & Monde
               </span>
             </div>
@@ -287,8 +287,8 @@ export function LandingPageView({ onLaunchApp, recipes, onAuthSuccess }: Landing
             </a>
           </nav>
 
-          {/* Action CTAs */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Action CTAs - Un seul bouton essentiel */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               id="header-surprise-btn"
               type="button"
@@ -299,26 +299,15 @@ export function LandingPageView({ onLaunchApp, recipes, onAuthSuccess }: Landing
               <span>Surprenez-moi !</span>
             </button>
 
-            {/* Bouton Se connecter */}
+            {/* UN SEUL BOUTON ESSENTIEL */}
             <button
-              id="header-login-btn"
+              id="header-auth-btn"
               type="button"
               onClick={() => handleOpenAuth('login')}
-              className="h-9 sm:h-10 px-3 sm:px-3.5 rounded-full bg-white hover:bg-[#FAF6F0] border border-[#EBE5DC] text-[#1A1A1A] font-bold text-xs flex items-center gap-1.5 transition-all hover:border-stone-400 cursor-pointer shadow-2xs"
+              className="h-9 sm:h-10 px-4 sm:px-5 rounded-full bg-[#D35400] hover:bg-[#B84700] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-[#D35400]/25 transition-all hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap"
             >
-              <LogIn className="w-3.5 h-3.5 text-[#D35400]" />
-              <span>Se connecter</span>
-            </button>
-
-            {/* Bouton S'inscrire */}
-            <button
-              id="header-signup-btn"
-              type="button"
-              onClick={() => handleOpenAuth('signup')}
-              className="h-9 sm:h-10 px-3.5 sm:px-4 rounded-full bg-[#D35400] hover:bg-[#B84700] text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-[#D35400]/25 transition-all hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span>S'inscrire</span>
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Connexion</span>
             </button>
           </div>
         </div>
